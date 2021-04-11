@@ -7,6 +7,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import wandb
 from model.config import cfg
 import roi_data_layer.roidb as rdl_roidb
 from roi_data_layer.layer import RoIDataLayer
@@ -84,7 +85,7 @@ class SolverWrapper(object):
     try:
       reader = pywrap_tensorflow.NewCheckpointReader(file_name)
       var_to_shape_map = reader.get_variable_to_shape_map()
-      return var_to_shape_map 
+      return var_to_shape_map
     except Exception as e:  # pylint: disable=broad-except
       print(str(e))
       if "corrupted compressed block contents" in str(e):
@@ -348,6 +349,17 @@ class SolverWrapper(object):
                   (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
             print('speed: {:.3f}s / iter'.format(timer.average_time))
             print('remaining time: {:.3f}h'.format(((max_iters-iter)*timer.average_time)/3600))
+
+      wandb.log({
+          'iter': iter,
+          'total_loss': total_loss,
+          'rpn_loss_cls': rpn_loss_cls,
+          'rpn_loss_box': rpn_loss_box,
+          'loss_cls': loss_cls,
+          'loss_box': loss_box,
+          'speed': timer.average_time,
+          'remaining_time': ((max_iters-iter)*timer.average_time)/3600
+      })
 
       if iter % cfg.TRAIN.SNAPSHOT_ITERS == 0:
         last_snapshot_iter = iter

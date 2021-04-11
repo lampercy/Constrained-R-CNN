@@ -27,6 +27,10 @@ from nets.res101_v1_C3Rcbam import resnet_C3Rcbam
 # from model.image_embedding import inception_v3
 slim = tf.contrib.slim
 
+import wandb
+
+wandb.init()
+
 
 def parse_args():
     """

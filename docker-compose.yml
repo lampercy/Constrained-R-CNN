@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  cuda:
+    runtime: nvidia
+    build: .
+    volumes:
+      - .:/var/constrained-r-cnn
+      - ./tamper:/media/li/Li/filter_tamper
+    ports:
+      - 8888:8888
+    environment:
+      CUDA_HOME: /usr/local/cuda
+      LD_LIBRARY_PATH: /usr/local/cuda/lib64
