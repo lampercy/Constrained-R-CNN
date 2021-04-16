@@ -19,10 +19,15 @@ RUN env PYTHON_CONFIGURE_OPTS="--enable-shared" pyenv install 3.6.7
 RUN pyenv global 3.6.7
 RUN pyenv rehash
 
-COPY ./requirements.txt /var/constrained-r-cnn/requirements.txt
+COPY ./ /var/constrained-r-cnn
 WORKDIR /var/constrained-r-cnn
 
 RUN pip install -r requirements.txt
 RUN pip install ipython jupyterlab
+
+RUN apt-get install -y tmux vim
+
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 CMD ["ipython", "notebook", "--allow-root", "--ip", "0.0.0.0"]

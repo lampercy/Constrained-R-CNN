@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   cuda:
+    image: gcr.io/oursky-kube/form-extractor-rcnn:latest
     runtime: nvidia
     build: .
     volumes:
