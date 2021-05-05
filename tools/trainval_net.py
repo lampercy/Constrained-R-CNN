@@ -16,15 +16,10 @@ import argparse
 import pprint
 import numpy as np
 import sys
-from tensorflow.contrib.slim.python.slim.nets.inception_v3 import inception_v3_base
 
 import tensorflow as tf
-# from nets.vgg16 import vgg16
-# from nets.resnet_v1 import resnetv1
 from nets.resnet_v1_cbam import resnet_cbam
-from nets.res101_v1_C3Rcbam import resnet_C3Rcbam
 
-# from model.image_embedding import inception_v3
 slim = tf.contrib.slim
 
 import wandb
@@ -137,12 +132,8 @@ if __name__ == '__main__':
     cfg.TRAIN.USE_JPG_AUG = orgjpg
 
     # load network
-    if args.net == 'inception_v3':
-        net = []
-    elif args.net == 'res101_cbam':
+    if args.net == 'res101_cbam':
         net = resnet_cbam(batch_size=cfg.TRAIN.IMS_PER_BATCH, num_layers=101)
-    elif args.net == 'res101_C3-R-cbam':
-        net = resnet_C3Rcbam(batch_size=cfg.TRAIN.IMS_PER_BATCH, num_layers=101)
     else:
         raise NotImplementedError
 

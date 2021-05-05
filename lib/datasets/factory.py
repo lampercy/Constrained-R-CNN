@@ -38,7 +38,7 @@ for split in ['casia_train_all_single', 'casia_test_all_single']:
     name = split
     __sets[name] = (lambda split=split: casia(split,2007,casia_path))
 
-coco_path='/media/li/Li/filter_tamper'
+coco_path='./tamper'
 for split in ['coco_train_filter_single', 'coco_test_filter_single']:
     name = split
     __sets[name] = (lambda split=split: coco(split,2007,coco_path))

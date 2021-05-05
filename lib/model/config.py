@@ -53,7 +53,7 @@ __C.TRAIN.USE_GT = False
 __C.TRAIN.ASPECT_GROUPING = False
 
 # The number of snapshots kept, older ones are deleted to save space
-__C.TRAIN.SNAPSHOT_KEPT = 10
+__C.TRAIN.SNAPSHOT_KEPT = 100
 
 # The time interval for saving tensorflow summaries
 __C.TRAIN.SUMMARY_INTERVAL = 180

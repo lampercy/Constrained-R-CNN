@@ -295,7 +295,7 @@ def test_net(sess, net, imdb, weights_filename, max_per_image=100, thresh=0):
                 _t['mask'].toc()
                 print('Im_detect: {:d}/{:d} {:.3f}s {:.3f}s' \
                       .format(i + 1, num_images, _t['im_detect'].average_time,
-                              _t['mask'].average_time))
+                              _t['mask'].average_time), flush=True)
             class_f1 = np.zeros(imdb.num_classes)
             class_auc = np.zeros(imdb.num_classes)
             for j in range(1, imdb.num_classes):

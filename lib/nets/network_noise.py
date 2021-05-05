@@ -408,18 +408,6 @@ class Network(object):
 
     return summary
 
-  def train_step(self, sess,update_weights,update_biases, blobs, train_op):
-    feed_dict = {self._image: blobs['data'], self.noise: blobs['noise'], self._im_info: blobs['im_info'],
-                 self._gt_boxes: blobs['gt_boxes']}
-    rpn_loss_cls, rpn_loss_box, loss_cls, loss_box,  loss, temp,temp1,temp2 = sess.run([self._losses["rpn_cross_entropy"],
-                                                                        self._losses['rpn_loss_box'],
-                                                                        self._losses['cross_entropy'],
-                                                                        self._losses['loss_box'],
-                                                                        self._losses['total_loss'],
-                                                                        train_op,
-                                                                        update_weights, update_biases,],
-                                                                       feed_dict=feed_dict)
-    return rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, loss
   def train_step_without_mask(self, sess,update_weights,update_biases, blobs, train_op):
     feed_dict = {self._image: blobs['data'], self.noise: blobs['noise'], self._im_info: blobs['im_info'],
                  self._gt_boxes: blobs['gt_boxes']}
@@ -433,18 +421,6 @@ class Network(object):
                                                                        feed_dict=feed_dict)
     return rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, loss
 
-  def train_step_with_summary(self, sess, update_weights,update_biases,blobs, train_op):
-    feed_dict = {self._image: blobs['data'], self.noise: blobs['noise'], self._im_info: blobs['im_info'],
-                 self._gt_boxes: blobs['gt_boxes']}
-    rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, loss, summary, temp,temp1,temp2 = sess.run([self._losses["rpn_cross_entropy"],
-                                                                                 self._losses['rpn_loss_box'],
-                                                                                 self._losses['cross_entropy'],
-                                                                                 self._losses['loss_box'],
-                                                                                 self._losses['total_loss'],
-                                                                                 self._summary_op,
-                                                                                 train_op,update_weights,update_biases,],
-                                                                                feed_dict=feed_dict)
-    return rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, loss, summary
   def train_step_with_summary_without_mask(self, sess, update_weights,update_biases,blobs, train_op):
     feed_dict = {self._image: blobs['data'], self.noise: blobs['noise'], self._im_info: blobs['im_info'],
                  self._gt_boxes: blobs['gt_boxes']}

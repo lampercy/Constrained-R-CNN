@@ -201,25 +201,6 @@ class SolverWrapper(object):
       restorer = tf.train.Saver(variables_to_restore)
       restorer.restore(sess, self.pretrained_model)
       print('Loaded.')
-      if cfg.TRAIN.FUSE:
-        noise_vars={}
-        for v in variables:
-          if v.name.split('/')[0]=='noise' and v.name.split(':')[0].replace('noise','resnet_v1_101',1) in var_keep_dic:
-            noise_vars[v.name.split(':')[0].replace('noise','resnet_v1_101',1)]=v
-        #pdb.set_trace()
-        noise_restorer = tf.train.Saver(noise_vars)
-        noise_restorer.restore(sess, self.pretrained_model)
-      elif cfg.USE_MASK is True and imdb_name!='dist_cover_train_single':
-        mask_vars={}
-
-        for v in variables:
-          if v.name.split('/')[0]=='mask_conv' and v.name.split(':')[0].replace('mask_conv','resnet_v1_101',1) in var_keep_dic:
-            mask_vars[v.name.split(':')[0].replace('mask_conv','resnet_v1_101',1)]=v
-        #pdb.set_trace()
-        print('mask conv len',len(mask_vars))
-        mask_restorer = tf.train.Saver(mask_vars)
-        mask_restorer.restore(sess, self.pretrained_model)
-        print('Mask Loaded')
       # Need to fix the variables before loading, so that the RGB weights are changed to BGR
       # For VGG16 it also changes the convolutional weights fc6 and fc7 to
       # fully connected weights
@@ -309,12 +290,8 @@ class SolverWrapper(object):
       now = time.time()
       if now - last_summary_time > cfg.TRAIN.SUMMARY_INTERVAL:
         # Compute the graph with summary
-        if cfg.USE_MASK is True:
-            rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, loss_mask,total_loss, summary = \
-              self.net.train_step_with_summary(sess, update_weights,update_biases, blobs, train_op)
-        else:
-            rpn_loss_cls, rpn_loss_box, loss_cls, loss_box,  total_loss, summary = \
-                self.net.train_step_with_summary_without_mask(sess, update_weights, update_biases, blobs, train_op)
+        rpn_loss_cls, rpn_loss_box, loss_cls, loss_box,  total_loss, summary = \
+            self.net.train_step_with_summary_without_mask(sess, update_weights, update_biases, blobs, train_op)
         self.writer.add_summary(summary, float(iter))
         # Also check the summary on the validation set
         blobs_val = self.data_layer_val.forward()
@@ -323,12 +300,8 @@ class SolverWrapper(object):
         last_summary_time = now
       else:
         # Compute the graph without summary
-        if cfg.USE_MASK is True:
-            rpn_loss_cls, rpn_loss_box, loss_cls, loss_box,loss_mask, total_loss = \
-              self.net.train_step(sess, update_weights,update_biases, blobs, train_op)
-        else:
-            rpn_loss_cls, rpn_loss_box, loss_cls, loss_box,  total_loss = \
-                self.net.train_step_without_mask(sess, update_weights, update_biases, blobs, train_op)
+        rpn_loss_cls, rpn_loss_box, loss_cls, loss_box,  total_loss = \
+            self.net.train_step_without_mask(sess, update_weights, update_biases, blobs, train_op)
 
       timer.toc()
     #  print(sess.run(tf.get_default_graph().get_tensor_by_name('noise/constrained_conv/weights:0')[2, 2, :, :]))
@@ -336,19 +309,11 @@ class SolverWrapper(object):
 
       # Display training information
       if iter % (cfg.TRAIN.DISPLAY) == 0:
-        if cfg.USE_MASK is True:
-
-            print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
-                  '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> loss_mask: %.6f\n >>> lr: %f' % \
-                  (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, loss_mask, lr.eval()))
-            print('speed: {:.3f}s / iter'.format(timer.average_time))
-            print('remaining time: {:.3f}h'.format(((max_iters - iter) * timer.average_time) / 3600))
-        else:
-            print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
-                  '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
-                  (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
-            print('speed: {:.3f}s / iter'.format(timer.average_time))
-            print('remaining time: {:.3f}h'.format(((max_iters-iter)*timer.average_time)/3600))
+        print('iter: %d / %d, total loss: %.6f\n >>> rpn_loss_cls: %.6f\n '
+              '>>> rpn_loss_box: %.6f\n >>> loss_cls: %.6f\n >>> loss_box: %.6f\n >>> lr: %f' % \
+              (iter, max_iters, total_loss, rpn_loss_cls, rpn_loss_box, loss_cls, loss_box, lr.eval()))
+        print('speed: {:.3f}s / iter'.format(timer.average_time))
+        print('remaining time: {:.3f}h'.format(((max_iters-iter)*timer.average_time)/3600))
 
       wandb.log({
           'iter': iter,
